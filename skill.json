@@ -1,0 +1,94 @@
+{
+  "manifest": {
+    "publishingInformation": {
+      "locales": {
+        "pt-BR": {
+          "summary": "Adicione seus próprios treinos facilmente e deixe que a Alexa guie você durante todas as suas séries e exercícios de forma completa e inteligente.",
+          "examplePhrases": [
+            "Alexa, começa o Meu Treino",
+            "Alexa, intervalo no Meu Treino",
+            "Alexa, pede pro Meu Treino terminar"
+          ],
+          "keywords": [
+            "treino",
+            "personal",
+            "training",
+            "trainer",
+            "meu",
+            "musculação",
+            "musculacao",
+            "musculação",
+            "em",
+            "casa",
+            "casa",
+            "treino",
+            "academia",
+            "ginastica",
+            "treinar",
+            "peso",
+            "exercício",
+            "exercícios",
+            "séries",
+            "repetições",
+            "perder",
+            "peso",
+            "fitness",
+            "activity",
+            "workout",
+            "training",
+            "strength",
+            "força",
+            "peso"
+          ],
+          "name": "Meu Treino",
+          "description": "The skill content is in Portuguese.\n\nATENÇÃO! LEIA AS INSTRUÇÕES E SIGA OS PASSOS A RISCA PARA QUE A SKILL FUNCIONE CORRETAMENTE:\n\n1. Caso as permissões para que a skill acesse sua Lista de Tarefas e crie Lembretes não seja concedida automaticamente, vá em:\n\nSkills e Jogos -\u003e Suas Skills -\u003e Meu Treino -\u003e Configurações -\u003e Gerenciar Permissões.\n\n2. Você pode definir quantos treinos, exercícios e séries quiser em sua LISTA DE TAREFAS (To-Do), utilizando uma nota para cada treino e seguindo o modelo a seguir:\n\nExemplo: TREINO A - Rosca direta: 3, Serrote: 4, Martelo: 4, Serrote: 4, Rosca alternada: 4, Abdominal: 4\n\n3. Adicione quantos treinos quiser. Basta criar uma nota diferente para cada treino na sua lista de tarefas. Lembre-se de seguir exatamente esse formato de pontuação:\n\nExemplo:\n\nTREINO B - Supino reto: 4, Crucifixo reto: 4, Triceps testa: 4, Triceps francês: 3, Supino reto: 3, Close grip: 3\n\nTREINO C - Elevação frontal: 3, Squat frontal: 3, Elevação lateral unilateral: 4, Passada: 3, Desenvolvimento: 4, Abdominal: 4\n\n4. Quando você iniciar a skill, a Alexa vai perguntar qual dos treinos salvos você deseja iniciar. A partir daí, ela vai instruir todo o seu treino, informando a série e o exercício atual para cada intervalo de série que você fizer.\n\n5. Para iniciar um intervalo de série, basta falar \"Alexa, intervalo no Meu Treino\" e a skill automaticamente vai lhe dar 1 minuto de intervalo, atualizar sua série e/ou exercício atual e ainda lhe dar algumas dicas durante o treino.\n\n6. O seu treino será encerrado automaticamente ao fim da execução da última série no último exercício. Também é possível encerrar o seu treino a qualquer momento, bastando apenas falar \"Alexa, pede pro Meu Treino terminar\".\n\n7. Você pode retomar o treino encerrado anteriormente falando \"Alexa, pede pro Meu Treino continuar\".\n\n# Intervalos de tempo personalizados nos treinos\n\nVocê pode customizar o tempo de intervalo entre os exercícios de duas formas diferentes:\n\n1. Crie uma nota chamada \"MEU_TREINO_INTERVALO\u003d1min\" na sua lista de tarefas (esta nota será criada por padrão após a primeira execução da skill, mas você pode criá-la antes se preferir). Para modificar o tempo de intervalo, basta alterar o \"1min\" para quanto tempo deseja. Os formatos válidos para intervalos personalizados são:\n\n[numero]min (para minutos) - ex: 2min\n[numero]s  (para segundos) - ex: 35s\n[numero:numero]min (para minutos e segundos) - ex: 1:30min\n\n2. Você também pode definir intervalos personalizados específicos para cada exercício do seu treino, usando os mesmos formatos válidos acima. Exemplo:\n\nTREINO D - Aquecimento rosca direta: 3(30s), Rosca direta: 2, Serrote: 2(1:45min), Martelo: 2, Pull down: 2(1:20min), Rosca concentrada: 2\n\nOs exercícios que não contiverem um intervalo personalizado específico, usarão o intervalo global definido previamente.\n\n# O volume do seu lembrete está muito baixo?\n\nInfelizmente a Skill não possui controle do nível de volume dos lembretes no seu dispositivo. Se o volume dos lembretes para retomar a sua série estiverem muito baixos, altere a configuração do nível de volume dos seus lembretes diretamente no aplicativo Alexa.\n\n# Lista de ações disponíveis:\n\n\"Alexa, começa o Meu Treino\"\n\"Alexa, (intervalo/pausa/tempo/descanso) no Meu Treino\"\n\"Alexa, pede pro Meu Treino terminar\"\n\"Alexa, pede pro Meu Treino continuar\"",
+          "smallIconUri": "file://assets/images/pt-BR_smallIconUri.png",
+          "updatesDescription": "Vocês pediram, a gente fez:\n\nAgora você pode customizar o tempo de intervalo entre os exercícios de duas formas diferentes!\n\n1. Crie uma nota chamada \"MEU_TREINO_INTERVALO\u003d1min\" na sua lista de tarefas (esta nota será criada por padrão após a primeira execução da skill de agora em diante, mas você pode criá-la antes se preferir). Para modificar o tempo de intervalo, basta alterar o \"1min\" para quanto tempo deseja. Os formatos válidos para intervalos personalizados são:\n\n[numero]min (para minutos) - ex: 2min\n[numero]s  (para segundos) - ex: 35s\n[numero:numero]min (para minutos e segundos) - ex: 1:30min\n\n2. Você também pode definir intervalos personalizados específicos para cada exercício do seu treino, usando os mesmos formatos válidos acima. Exemplo:\n\nTREINO D - Aquecimento rosca direta: 3(30s), Rosca direta: 2, Serrote: 2(1:45min), Martelo: 2, Pull down: 2(1:20min), Rosca concentrada: 2\n\nOs exercícios que não contiverem um intervalo personalizado específico, usarão o intervalo global definido previamente.\n\nEsperamos que gostem dessa atualização e se possível avaliem a nossa skill! \n\nUm abraço a todos e bons treinos!\n\n-------------\nTambém incluso nesta atualização:\n\n* Tutorial skip -\u003e Agora a Alexa irá iniciar mais rapidamente os seus treinos se você já tiver treinado com ela antes.\n* Escolha de treinos melhorada -\u003e Agora é possível falar somente a letra do treino ao invés de \"treino [letra]\" para iniciar um treino",
+          "largeIconUri": "file://assets/images/pt-BR_largeIconUri.png"
+        }
+      },
+      "automaticDistribution": {
+        "isActive": false
+      },
+      "isAvailableWorldwide": false,
+      "testingInstructions": "Hi! \n\nFirst and foremost, I think the first tester didn\u0027t get what would be the happy flow of this skill.\n\nOne of the issues found by the tester was that the session was closed after \"Alexa, pede pro Meu Treino terminar\" was said. This is the intentional behavior.\n\nFollowing is a structure of the happy flow of the skill: (portuguese)\n\nAlexa, começa meu treino\n\ntreino a\n\nAlexa, intervalo no meu treino -\u003e You always need to ask for an interval after completed a series of exercises. The tester asked for a break on its training in here, and that is what happened (if you say \"Alexa, pede pro meu treino terminar\" your training is going to end).\n\nAt this point, the skill will say that you have 1 minute to rest, and will set a reminder to remember you to keep going with the exercise.\n\nWhen the alarm triggers, the reminder message is actually the instruction of what series of which exercise you should do next. When you finished this, you have to ask for an interval again. And this is the main loop idea.\n\nWhen you get to the last series of exercises, the skill will set the last reminder (and will told you that this is going to be the last series of your training. \n\nAt this point \n\n\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d\u003d General notes:\n\nThe two permissions needed on this skill are to: write to-do lists, read to-do lists and create reminders.\n\nSet up a workout on the TO-DO list, using this format(pt-br): \n\nTREINO A - Rosca direta: 3, Serrote: 4, Martelo: 4, Serrote: 4, Rosca alternada: 4, Abdominal: 4\nTREINO B - Supino reto: 4, Crucifixo reto: 4, Triceps testa: 4, Triceps francês: 3, Supino reto: 3, Close grip: 3\n\n(You can set as many workouts as you want).\n\nStart by saying \"alexa, start Meu Treino\" - she will query the to-do notes that contains the keyword \"TREINO\" (training, in portuguese)\n\nThen she will ask you which one of the trainings do you want to launch. In order to do that, just say \"TREINO A\" or \"TREINO B\" (or any other training name letter)\n\nThen, she will start your workout and count your series. At the end of each series, just say \"Alexa, intervalo no Meu Treino\" (alexa, interval in Meu Treino - in portuguese) \n\nAlexa will give you an 1min break, setting up a reminder, and then update the current state of your workout (i.e. will say what is your next series number or your next exercise). Also, if you reach the end of your training, she will end it up it in here as well.",
+      "category": "HEALTH_AND_FITNESS",
+      "distributionCountries": [
+        "BR"
+      ]
+    },
+    "apis": {
+      "custom": {
+        "endpoint": {
+          "uri": "arn:aws:lambda:us-east-1:167530749779:function:32d8f555-6e03-41db-a493-128a53ec74a4:Release_2"
+        },
+        "interfaces": []
+      }
+    },
+    "manifestVersion": "1.0",
+    "permissions": [
+      {
+        "name": "alexa::household:lists:read"
+      },
+      {
+        "name": "alexa::household:lists:write"
+      },
+      {
+        "name": "alexa::alerts:reminders:skill:readwrite"
+      }
+    ],
+    "privacyAndCompliance": {
+      "allowsPurchases": false,
+      "locales": {
+        "pt-BR": {
+          "termsOfUseUrl": "",
+          "privacyPolicyUrl": "https://docs.google.com/document/d/1Q2CAXwgFq-ykR6rjyqZUmaBpGI-wU6G-1mR8v786mTk"
+        }
+      },
+      "containsAds": false,
+      "isExportCompliant": true,
+      "isChildDirected": false,
+      "usesPersonalInfo": false
+    }
+  }
+}
