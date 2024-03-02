@@ -96,7 +96,7 @@ const LaunchRequestHandler = {
 
     const workoutsFetching = await axios
       .get(
-        `https://api.myworkoutalexa.com/api/workouts?filters[authorEmail][$eq]=${emailAddress}`,
+        `https://api.meutreino.fit/api/workouts?filters[authorEmail][$eq]=${emailAddress}`,
         {
           headers: {
             Authorization: `Bearer ${readToken}`,
@@ -469,7 +469,7 @@ const IntervalIntentHandler = {
 
       const workoutFetching = await axios
         .get(
-          `https://api.myworkoutalexa.com/api/workouts?filters[authorEmail][$eq]=${emailAddress}&filters[id][$eq]=${currentWorkoutIdFromList}`,
+          `https://api.meutreino.fit/api/workouts?filters[authorEmail][$eq]=${emailAddress}&filters[id][$eq]=${currentWorkoutIdFromList}`,
           {
             headers: {
               Authorization: `Bearer ${readToken}`,
