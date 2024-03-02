@@ -225,6 +225,8 @@ const StartTrainingIntentHandler = {
         : `Workout ${workoutNames[0]}`
     }.<break time="0.2s" />`;
 
+    console.log('@@@ Selected training name:', value);
+
     selectedWorkout = workouts.find(
       (workout) => workout.attributes.name === value.toUpperCase()
     );
@@ -744,7 +746,7 @@ const IntervalIntentHandler = {
 
       return handlerInput.responseBuilder
         .speak(
-          '<amazon:emotion name="disappointed" intensity="high">Sorry, it seems you haven\'t granted the necessary permissions for me to create reminders. Please grant the permission in the Alexa app. Then, just say: Alexa, ask Meu Treino to continue. Or if you prefer, start a new workout.</amazon:emotion>'
+          '<amazon:emotion name="disappointed" intensity="high">Sorry, it seems you haven\'t granted the necessary permissions for me to create reminders. Please grant the permission in the Alexa app. Then, just say: Alexa, ask My Workout to continue. Or if you prefer, start a new workout.</amazon:emotion>'
         )
         .getResponse();
     }
