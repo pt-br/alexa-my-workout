@@ -227,15 +227,17 @@ const StartTrainingIntentHandler = {
 
     console.log('@@@ Selected training name:', value);
 
+    const valueParsed = value.replace(/^([A-Za-z])\.?$/, '$1').toUpperCase();
+
     selectedWorkout = workouts.find(
-      (workout) => workout.attributes.name === value.toUpperCase()
+      (workout) => workout.attributes.name === valueParsed
     );
 
     /**
      * Invalid workout name (asking for a training name that doesn't exist)
      */
     if (!selectedWorkout) {
-      const speakOutput = `<amazon:emotion name="excited" intensity="high">The workout ${value} is not created. Choose a valid workout, such as: ${invalidTrainingSpeech}</amazon:emotion>`;
+      const speakOutput = `<amazon:emotion name="excited" intensity="high">The workout ${valueParsed} is not created. Choose a valid workout, such as: ${invalidTrainingSpeech}</amazon:emotion>`;
       return handlerInput.responseBuilder
         .speak(speakOutput)
         .reprompt(
@@ -358,8 +360,8 @@ const StartTrainingIntentHandler = {
         reps === 1 ? 'repetition' : 'repetitions'
       }.<break time="0.2s" /> ${howTo}<break time="0.2s" /> ${
         isFirstTraining
-          ? `You need to inform me every time you finish a set.<break time="0.2s" /> To do this, just say: Alexa, pause in my workout.<break time="0.2s" /> That way I'll know when to remind you to continue the workout.<break time="0.2s" /> You can start your first set of ${name} and when you finish, say: Alexa, pause in my workout.`
-          : `You can start your first set of ${name}, and when you finish, inform me by saying: Alexa, pause in my workout.`
+          ? `You need to inform me every time you finish a set.<break time="0.2s" /> To do this, just say: Alexa, rest in my workout.<break time="0.2s" /> That way I'll know when to remind you to continue the workout.<break time="0.2s" /> You can start your first set of ${name} and when you finish, say: Alexa, rest in my workout.`
+          : `You can start your first set of ${name}, and when you finish, inform me by saying: Alexa, rest in my workout.`
       }`;
     } else {
       exerciseSpeech = `<break time="0.2s" />Your first exercise is ${name}.<break time="0.2s" /> You will do ${seriesToSay} ${
@@ -368,8 +370,8 @@ const StartTrainingIntentHandler = {
         reps === 1 ? 'repetition' : 'repetitions'
       }.<break time="0.2s" /> ${
         isFirstTraining
-          ? `You need to inform me every time you finish a set.<break time="0.2s" /> To do this, just say: Alexa, pause in my workout.<break time="0.2s" /> That way I'll know when to remind you to continue the workout.<break time="0.2s" /> You can start your first set of ${name} and when you finish, say: Alexa, pause in my workout.`
-          : `You can start your first set of ${name}, and when you finish, inform me by saying: Alexa, pause in my workout.`
+          ? `You need to inform me every time you finish a set.<break time="0.2s" /> To do this, just say: Alexa, rest in my workout.<break time="0.2s" /> That way I'll know when to remind you to continue the workout.<break time="0.2s" /> You can start your first set of ${name} and when you finish, say: Alexa, rest in my workout.`
+          : `You can start your first set of ${name}, and when you finish, inform me by saying: Alexa, rest in my workout.`
       }`;
     }
 
@@ -697,7 +699,7 @@ const IntervalIntentHandler = {
     let intervalToSay;
 
     if (currentSerie === 1) {
-      intervalToSay = `<speak><amazon:emotion name="excited" intensity="high">End of your interval. Let's move on to the first set of ${name}. You will do ${seriesToSay} ${
+      intervalToSay = `<speak><amazon:emotion name="excited" intensity="high">End of your rest time. Let's move on to the first set of ${name}. You will do ${seriesToSay} ${
         series === 1 ? 'set' : 'sets'
       } of ${repsToSay} ${
         reps === 1 ? 'repetition' : 'repetitions'
@@ -705,7 +707,7 @@ const IntervalIntentHandler = {
         howTo ? howTo : ''
       }. You can start your first set of ${name}.</amazon:emotion></speak>`;
     } else {
-      intervalToSay = `<speak><amazon:emotion name="excited" intensity="high">End of your interval, proceed to set ${currentSerie} of ${name}, doing another ${repsToSay} ${
+      intervalToSay = `<speak><amazon:emotion name="excited" intensity="high">End of your rest time, proceed to set ${currentSerie} of ${name}, doing another ${repsToSay} ${
         reps === 1 ? 'repetition' : 'repetitions'
       }.</amazon:emotion></speak>`;
     }
@@ -720,10 +722,10 @@ const IntervalIntentHandler = {
           content: [
             {
               locale: 'en-US',
-              text: 'My Workout Interval',
+              text: 'My Workout Rest',
               ssml: !isLastExercise
                 ? intervalToSay
-                : `<speak><amazon:emotion name="excited" intensity="high">End of your interval, do the last ${repsToSay} ${
+                : `<speak><amazon:emotion name="excited" intensity="high">End of your rest time, do the last ${repsToSay} ${
                     reps === 1 ? 'repetition' : 'repetitions'
                   } of ${name} and your workout will be complete! If you enjoyed this workout, don't forget to rate us with 5 stars. Thank you!</amazon:emotion></speak>`,
             },
