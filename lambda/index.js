@@ -65,7 +65,7 @@ const LaunchRequestHandler = {
     const { permissions } = handlerInput.requestEnvelope.context.System.user;
 
     if (!permissions) {
-      const speechOutput = `<amazon:emotion name="disappointed" intensity="high">Desculpe, parece que você não concedeu as permissões necessárias para que eu acesse e crie notas na sua lista de tarefas e crie lembretes. Por favor, conceda as permissões e me chame novamente. Se tiver alguma dúvida, siga as instruções que estão na página da Skill.</amazon:emotion>`;
+      const speechOutput = `<amazon:emotion name="disappointed" intensity="high">Sorry, it seems you haven't granted the necessary permissions for me to access and create notes in your to-do list and set reminders. Please grant the permissions and summon me again. If you have any questions, follow the instructions on the Skill page.</amazon:emotion>`;
       return handlerInput.responseBuilder
         .speak(speechOutput)
         .withShouldEndSession(true)
@@ -86,7 +86,7 @@ const LaunchRequestHandler = {
 
     if (emailAddress === 'NO_EMAIL_PERMISSIONS') {
       const speechOutput =
-        '<amazon:emotion name="disappointed" intensity="high">Desculpe, parece que você não concedeu as permissões necessárias para que eu identifique o seu endereço de email. Por favor, conceda a permissão no aplicativo Alexa no seu celular e me chame novamente.</amazon:emotion>';
+        '<amazon:emotion name="disappointed" intensity="high">Sorry, it seems you haven\'t granted the necessary permissions for me to identify your email address. Please grant permission in the Alexa app on your phone and summon me again.</amazon:emotion>';
 
       return handlerInput.responseBuilder
         .speak(speechOutput)
@@ -96,7 +96,7 @@ const LaunchRequestHandler = {
 
     const workoutsFetching = await axios
       .get(
-        `https://api.meutreino.fit/api/workouts?filters[authorEmail][$eq]=${emailAddress}`,
+        `https://api.myworkoutalexa.com/api/workouts?filters[authorEmail][$eq]=${emailAddress}`,
         {
           headers: {
             Authorization: `Bearer ${readToken}`,
@@ -118,7 +118,7 @@ const LaunchRequestHandler = {
 
     if (workoutsFetching === 'ERROR_FETCHING_TRAININGS') {
       const speechOutput =
-        '<amazon:emotion name="disappointed" intensity="high">Olá! Houve um erro ao sincronizar os seus treinos com o meutreino.fit. Por favor, tente iniciar o seu treino novamente!</amazon:emotion>';
+        '<amazon:emotion name="disappointed" intensity="high">Hello! There was an error synchronizing your workouts with myworkoutalexa.com. Please try starting your workout again!</amazon:emotion>';
 
       return handlerInput.responseBuilder
         .speak(speechOutput)
@@ -128,7 +128,7 @@ const LaunchRequestHandler = {
 
     if (workoutsFetching === 'NO_TRAININGS') {
       const speechOutput =
-        '<amazon:emotion name="disappointed" intensity="high">Olá, seja muito bem-vindo ao Meu Treino! Parece que você ainda não tem um cadastro ou ainda não criou nenhum treino no meutreino.fit. Por favor, acesse meutreino.fit, monte seus treinos com a ajuda da nossa inteligência artificial e me chame novamente!</amazon:emotion>';
+        '<amazon:emotion name="disappointed" intensity="high">Hello, welcome to My Workout! It seems you haven\'t registered yet or haven\'t created any workouts on myworkoutalexa.com. Please visit myworkoutalexa.com, create your workouts with the help of our artificial intelligence, and summon me again!</amazon:emotion>';
 
       return handlerInput.responseBuilder
         .speak(speechOutput)
@@ -166,33 +166,33 @@ const LaunchRequestHandler = {
       .map((workout) => workout.attributes.name)
       .sort();
 
-    const savedTrainingsSpeech = `<break time="0.3s" />Você possui ${
+    const savedTrainingsSpeech = `<break time="0.3s" />You have ${
       workouts.length
-    } ${workouts.length === 1 ? 'treino' : 'treinos'} ${
-      workouts.length === 1 ? 'disponível' : 'disponíveis'
+    } ${workouts.length === 1 ? 'workout' : 'workouts'} ${
+      workouts.length === 1 ? 'available' : 'available'
     }: ${
       workoutNames.length > 1
         ? workoutNames
             .slice(0, -1)
-            .map((name) => `Treino ${name} <break time="0.1s" />`)
-            .join(', ') + ` e Treino ${workoutNames.slice(-1)[0]}`
-        : `Treino ${workoutNames[0]}`
+            .map((name) => `Workout ${name} <break time="0.1s" />`)
+            .join(', ') + ` and Workout ${workoutNames.slice(-1)[0]}`
+        : `Workout ${workoutNames[0]}`
     }<break time="0.2s" />`;
 
     if (isFirstTraining) {
-      const speechOutput = `<amazon:emotion name="excited" intensity="high">Olá ${personName}! Seja bem-vindo ao seu primeiro treino! ${savedTrainingsSpeech}. Qual treino deseja iniciar?</amazon:emotion>`;
+      const speechOutput = `<amazon:emotion name="excited" intensity="high">Hello ${personName}! Welcome to your first workout! ${savedTrainingsSpeech}. Which workout would you like to start?</amazon:emotion>`;
       return handlerInput.responseBuilder
         .speak(speechOutput)
         .reprompt(
-          '<amazon:emotion name="excited" intensity="high">Você tá aí? Qual dos treinos quer iniciar?</amazon:emotion>'
+          '<amazon:emotion name="excited" intensity="high">Are you there? Which of the workouts do you want to start?</amazon:emotion>'
         )
         .getResponse();
     } else {
-      const speechOutput = `<amazon:emotion name="excited" intensity="high">Olá ${personName}, bem-vindo de volta ao Meu Treino, ou melhor, o seu treino! ${savedTrainingsSpeech}. Qual treino deseja iniciar?</amazon:emotion>`;
+      const speechOutput = `<amazon:emotion name="excited" intensity="high">Hello ${personName}, welcome back to My Workout, or should I say, your workout! ${savedTrainingsSpeech}. Which workout would you like to start?</amazon:emotion>`;
       return handlerInput.responseBuilder
         .speak(speechOutput)
         .reprompt(
-          '<amazon:emotion name="excited" intensity="high">Você tá aí? Qual dos treinos quer iniciar?</amazon:emotion>'
+          '<amazon:emotion name="excited" intensity="high">Are you there? Which workout do you want to start?</amazon:emotion>'
         )
         .getResponse();
     }
@@ -220,9 +220,9 @@ const StartTrainingIntentHandler = {
       workoutNames.length > 1
         ? workoutNames
             .slice(0, -1)
-            .map((name) => `Treino ${name}`)
-            .join(', ') + ` e Treino ${workoutNames.slice(-1)[0]}`
-        : `Treino ${workoutNames[0]}`
+            .map((name) => `Workout ${name}`)
+            .join(', ') + ` and Workout ${workoutNames.slice(-1)[0]}`
+        : `Workout ${workoutNames[0]}`
     }.<break time="0.2s" />`;
 
     selectedWorkout = workouts.find(
@@ -233,11 +233,11 @@ const StartTrainingIntentHandler = {
      * Invalid workout name (asking for a training name that doesn't exist)
      */
     if (!selectedWorkout) {
-      const speakOutput = `<amazon:emotion name="excited" intensity="high">O treino ${value} não está salvo nas suas notas. Escolha um treino válido, como: ${invalidTrainingSpeech}</amazon:emotion>`;
+      const speakOutput = `<amazon:emotion name="excited" intensity="high">The workout ${value} is not created. Choose a valid workout, such as: ${invalidTrainingSpeech}</amazon:emotion>`;
       return handlerInput.responseBuilder
         .speak(speakOutput)
         .reprompt(
-          `<amazon:emotion name="excited" intensity="high">Você ainda tá por aí? Se ainda quiser treinar, escolha um treino válido, como: ${invalidTrainingSpeech}</amazon:emotion>`
+          `<amazon:emotion name="excited" intensity="high">Are you still there? If you still want to train, choose a valid workout, such as: ${invalidTrainingSpeech}</amazon:emotion>`
         )
         .getResponse();
     }
@@ -250,7 +250,7 @@ const StartTrainingIntentHandler = {
       (selectedWorkout.attributes.exercises &&
         selectedWorkout.attributes.exercises.length === 0)
     ) {
-      const speechOutput = `<amazon:emotion name="disappointed" intensity="high">Parece que você ainda não adicionou nenhum exercício no seu ${workoutDescription}. Por favor, acesse meutreino.fit e adicione exercícios no seu treino.</amazon:emotion>`;
+      const speechOutput = `<amazon:emotion name="disappointed" intensity="high">It seems you haven't added any exercises to your ${workoutDescription} yet. Please visit myworkoutalexa.com and add exercises to your workout.</amazon:emotion>`;
 
       return handlerInput.responseBuilder
         .speak(speechOutput)
@@ -267,10 +267,10 @@ const StartTrainingIntentHandler = {
         interval: {
           name:
             exercise.interval < 60
-              ? `${exercise.interval} segundo${
+              ? `${exercise.interval} second${
                   exercise.interval !== 1 ? 's' : ''
                 }`
-              : `${Math.floor(exercise.interval / 60)} minuto${
+              : `${Math.floor(exercise.interval / 60)} minute${
                   Math.floor(exercise.interval / 60) !== 1 ? 's' : ''
                 }${
                   Math.floor(exercise.interval / 60) !== 0 &&
@@ -279,7 +279,7 @@ const StartTrainingIntentHandler = {
                     : ''
                 }${
                   exercise.interval % 60 !== 0
-                    ? `${exercise.interval % 60} segundo${
+                    ? `${exercise.interval % 60} second${
                         exercise.interval % 60 !== 1 ? 's' : ''
                       }`
                     : ''
@@ -329,45 +329,45 @@ const StartTrainingIntentHandler = {
     });
 
     const randomMotivation = [
-      'Vamos começar',
-      'Vamos lá',
-      'Vamos nessa',
-      'Bora começar',
-      'Bora lá',
+      "Let's start",
+      "Let's go",
+      'Here we go',
+      "Let's get started",
+      "Come on, let's go",
     ];
 
     const randomConfirmation = [
-      `Certo, ${workoutDescription}`,
-      `Iniciando o ${workoutDescription}`,
-      `${workoutDescription} então`,
-      `Tudo certo pro seu ${workoutDescription}`,
-      `Ok, ${workoutDescription}`,
+      `Alright, ${workoutDescription}`,
+      `Starting ${workoutDescription}`,
+      `${workoutDescription} then`,
+      `All set for your ${workoutDescription}`,
+      `Okay, ${workoutDescription}`,
     ];
 
-    const seriesToSay = series === 1 ? 'uma' : series === 2 ? 'duas' : series;
-    const repsToSay = reps === 1 ? 'uma' : reps === 2 ? 'duas' : reps;
+    const seriesToSay = series === 1 ? 'one' : series === 2 ? 'two' : series;
+    const repsToSay = reps === 1 ? 'one' : reps === 2 ? 'two' : reps;
 
     let exerciseSpeech = '';
 
     if (howTo) {
-      exerciseSpeech = `<break time="0.2s" />O seu primeiro exercício é ${name}.<break time="0.2s" /> Você fará ${seriesToSay} ${
-        series === 1 ? 'série' : 'séries'
-      } di ${repsToSay} ${
-        reps === 1 ? 'repetição' : 'repetições'
+      exerciseSpeech = `<break time="0.2s" />Your first exercise is ${name}.<break time="0.2s" /> You will do ${seriesToSay} ${
+        series === 1 ? 'set' : 'sets'
+      } of ${repsToSay} ${
+        reps === 1 ? 'repetition' : 'repetitions'
       }.<break time="0.2s" /> ${howTo}<break time="0.2s" /> ${
         isFirstTraining
-          ? `Você precisa me informar toda vez que concluir uma série.<break time="0.2s" /> Para isso, é só falar: Alexa, intervalo no meu treino.<break time="0.2s" /> Dessa forma saberei quando lhe avisar para dar seguimento ao treino.<break time="0.2s" /> Pode começar a sua primeira série de ${name} e quando terminá-la, diga: Alexa, intervalo no meu treino.`
-          : `Pode começar a sua primeira série de ${name}, e quando terminar, me informe dizendo: Alexa, intervalo no meu treino.`
+          ? `You need to inform me every time you finish a set.<break time="0.2s" /> To do this, just say: Alexa, pause in my workout.<break time="0.2s" /> That way I'll know when to remind you to continue the workout.<break time="0.2s" /> You can start your first set of ${name} and when you finish, say: Alexa, pause in my workout.`
+          : `You can start your first set of ${name}, and when you finish, inform me by saying: Alexa, pause in my workout.`
       }`;
     } else {
-      exerciseSpeech = `<break time="0.2s" />O seu primeiro exercício é ${name}.<break time="0.2s" /> Você fará ${seriesToSay} ${
-        series === 1 ? 'série' : 'séries'
-      } di ${repsToSay} ${
-        reps === 1 ? 'repetição' : 'repetições'
+      exerciseSpeech = `<break time="0.2s" />Your first exercise is ${name}.<break time="0.2s" /> You will do ${seriesToSay} ${
+        series === 1 ? 'set' : 'sets'
+      } of ${repsToSay} ${
+        reps === 1 ? 'repetition' : 'repetitions'
       }.<break time="0.2s" /> ${
         isFirstTraining
-          ? `Você precisa me informar toda vez que concluir uma série.<break time="0.2s" /> Para isso, é só falar: Alexa, intervalo no meu treino.<break time="0.2s" /> Dessa forma saberei quando lhe avisar para dar seguimento ao treino.<break time="0.2s" /> Pode começar a sua primeira série de ${name} e quando terminá-la, diga: Alexa, intervalo no meu treino.`
-          : `Pode começar a sua primeira série de ${name}, e quando terminar, me informe dizendo: Alexa, intervalo no meu treino.`
+          ? `You need to inform me every time you finish a set.<break time="0.2s" /> To do this, just say: Alexa, pause in my workout.<break time="0.2s" /> That way I'll know when to remind you to continue the workout.<break time="0.2s" /> You can start your first set of ${name} and when you finish, say: Alexa, pause in my workout.`
+          : `You can start your first set of ${name}, and when you finish, inform me by saying: Alexa, pause in my workout.`
       }`;
     }
 
@@ -413,7 +413,7 @@ const IntervalIntentHandler = {
        */
       if (!currentWorkoutIdListItem) {
         const speakOutput =
-          '<amazon:emotion name="disappointed" intensity="high">Ops, parece que não há um treino em andamento. Para iniciar um novo treino, diga: Alexa, começa meu treino.</amazon:emotion>';
+          '<amazon:emotion name="disappointed" intensity="high">Oops, it seems there is no workout in progress. To start a new workout, say: Alexa, start my workout.</amazon:emotion>';
 
         return handlerInput.responseBuilder.speak(speakOutput).getResponse();
       }
@@ -435,8 +435,7 @@ const IntervalIntentHandler = {
       );
 
       shouldSkipMotivation = JSON.parse(
-        shouldSkipMotivationListItem
-          .value
+        shouldSkipMotivationListItem.value
           .replace('SKIP_MOTIVATION=', '')
           .toLowerCase()
       );
@@ -455,7 +454,7 @@ const IntervalIntentHandler = {
 
       if (emailAddress === 'NO_EMAIL_PERMISSIONS') {
         const speechOutput =
-          '<amazon:emotion name="disappointed" intensity="high">Desculpe, parece que você não concedeu as permissões necessárias para que eu identifique o seu endereço de email. Por favor, conceda a permissão no aplicativo Alexa no seu celular e me chame novamente.</amazon:emotion>';
+          '<amazon:emotion name="disappointed" intensity="high">Sorry, it seems you haven\'t granted the necessary permissions for me to identify your email address. Please grant permission in the Alexa app on your phone and summon me again.</amazon:emotion>';
 
         return handlerInput.responseBuilder
           .speak(speechOutput)
@@ -463,13 +462,14 @@ const IntervalIntentHandler = {
           .getResponse();
       }
 
-      const currentWorkoutIdFromList = currentWorkoutIdListItem
-        .value
-        .replace('CURRENT_WORKOUT_ID=', '');
+      const currentWorkoutIdFromList = currentWorkoutIdListItem.value.replace(
+        'CURRENT_WORKOUT_ID=',
+        ''
+      );
 
       const workoutFetching = await axios
         .get(
-          `https://api.meutreino.fit/api/workouts?filters[authorEmail][$eq]=${emailAddress}&filters[id][$eq]=${currentWorkoutIdFromList}`,
+          `https://api.myworkoutalexa.com/api/workouts?filters[authorEmail][$eq]=${emailAddress}&filters[id][$eq]=${currentWorkoutIdFromList}`,
           {
             headers: {
               Authorization: `Bearer ${readToken}`,
@@ -503,17 +503,19 @@ const IntervalIntentHandler = {
         note.value.match(/CURRENT_EXERCISE_NAME/gi)
       );
 
-      const currentExerciseName = currentExerciseListItem
-        .value
-        .replace('CURRENT_EXERCISE_NAME=', '');
+      const currentExerciseName = currentExerciseListItem.value.replace(
+        'CURRENT_EXERCISE_NAME=',
+        ''
+      );
 
       const currentSerieListItem = list.items.find((note) =>
         note.value.match(/CURRENT_SERIE/gi)
       );
 
-      const currentSerieListValue = currentSerieListItem
-        .value
-        .replace('CURRENT_SERIE=', '');
+      const currentSerieListValue = currentSerieListItem.value.replace(
+        'CURRENT_SERIE=',
+        ''
+      );
 
       exercises = selectedWorkout.attributes.exercises.map((exercise) => {
         return {
@@ -524,10 +526,10 @@ const IntervalIntentHandler = {
           interval: {
             name:
               exercise.interval < 60
-                ? `${exercise.interval} segundo${
+                ? `${exercise.interval} second${
                     exercise.interval !== 1 ? 's' : ''
                   }`
-                : `${Math.floor(exercise.interval / 60)} minuto${
+                : `${Math.floor(exercise.interval / 60)} minute${
                     Math.floor(exercise.interval / 60) !== 1 ? 's' : ''
                   }${
                     Math.floor(exercise.interval / 60) !== 0 &&
@@ -536,7 +538,7 @@ const IntervalIntentHandler = {
                       : ''
                   }${
                     exercise.interval % 60 !== 0
-                      ? `${exercise.interval % 60} segundo${
+                      ? `${exercise.interval % 60} second${
                           exercise.interval % 60 !== 1 ? 's' : ''
                         }`
                       : ''
@@ -613,96 +615,96 @@ const IntervalIntentHandler = {
     }
 
     const randomReminderInitial = [
-      'Ok',
-      'Certo',
-      'Beleza',
-      'Tudo bem',
-      'Pode deixar',
-      'Deixa comigo',
-      'Show',
-      'Tá bom',
-      'Entendido',
+      'Okay',
+      'Alright',
+      'Sure',
+      'All good',
+      'You got it',
+      'Leave it to me',
+      'Great',
+      'Okay',
+      'Understood',
     ];
 
     const randomReminder = [
-      `Vou te lembrar de retomar a sua série em ${intervalToSet.name}`,
-      `Daqui a ${intervalToSet.name} eu te aviso`,
-      `Em ${intervalToSet.name} voltaremos com a próxima série`,
-      `Daqui a ${intervalToSet.name} a gente continua`,
-      `Te aviso em ${intervalToSet.name}`,
+      `I'll remind you to resume your set in ${intervalToSet.name}`,
+      `I'll let you know in ${intervalToSet.name}`,
+      `We'll continue with the next set in ${intervalToSet.name}`,
+      `We'll continue in ${intervalToSet.name}`,
+      `I'll notify you in ${intervalToSet.name}`,
     ];
 
     const randomTip = [
-      'Aproveite para se hidratar se você estiver com sede',
-      'Lembre-se de aumentar a intensidade ou a carga do seu exercício se estiver muito fácil',
-      'Respire corretamente durante as séries, isso vai aliviar a pressão do seu corpo durante execução dos exercícios',
-      'Tenha uma alimentação saudável e siga uma dieta balanceada para complementar o seu treino',
-      'Lembre-se que é importante que o seu descanso seja compatível com o esforço, portanto tire dias para descansar',
-      'Cuidado com a sua postura durante a execução dos exercícios',
-      'Vamos lá, falta pouco agora!',
-      'Você está indo muito bem, continua assim!',
-      'Tô gostando de ver!',
-      'Acredite em si mesmo, você é mais forte do que pensa!',
-      'Cada gota de suor é um passo mais próximo do seu objetivo!',
-      'O sucesso vem para aqueles que se esforçam e persistem!',
-      'Não desista, o que hoje parece impossível, amanhã será apenas mais uma conquista!',
-      'Seja consistente e os resultados virão!',
-      'Você é capaz de superar qualquer desafio que aparecer no seu caminho!',
-      'O caminho para o sucesso é pavimentado com dedicação e determinação!',
-      'Nunca subestime o poder da sua mente para transformar seus sonhos em realidade!',
-      'O impossível só existe até que alguém decida torná-lo possível!',
-      'Lembre-se que o importante é progredir, não importa o quão devagar você vá!',
-      'Cada dia é uma nova oportunidade para melhorar!',
-      'Não deixe que o medo de falhar o impeça de tentar!',
-      'A jornada do sucesso começa com um simples passo!',
-      'O sucesso não é um destino, é uma jornada!',
-      'As pequenas vitórias são tão importantes quanto as grandes!',
-      'Não compare seu progresso com o dos outros, compare com o seu próprio ontem!',
-      'O fracasso é apenas uma oportunidade para recomeçar com mais sabedoria!',
-      'Você é mais corajoso do que pensa, mais forte do que imagina e mais capaz do que acredita!',
-      'Se você quer algo que nunca teve, precisa fazer algo que nunca fez!',
-      'A dor que você sente hoje será a força que você sentirá amanhã!',
-      'Não existe elevador para o sucesso, você precisa subir degrau por degrau!',
-      'Não deixe para amanhã o que você pode começar hoje!',
-      'O sucesso é a soma de pequenos esforços repetidos dia após dia!',
-      'Você não pode mudar o vento, mas pode ajustar as velas do barco!',
-      'O segredo do sucesso é a constância do propósito!',
-      'Acredite em você mesmo e tudo será possível!',
-      'Não espere por oportunidades, crie-as!',
-      'A disciplina é a ponte entre metas e realizações!',
-      'Não existe vitória sem luta!',
-      'O maior obstáculo para o sucesso é o medo do fracasso!',
-      'Não importa o quão devagar você vá, desde que você não pare!',
-      'O que você faz hoje pode melhorar todos os seus amanhãs!',
-      'O tempo é precioso, não o desperdice, invista em você!',
-      'O sucesso não é o resultado de um esforço único, é o resultado de um compromisso constante!',
-      'Não deixe que a vontade de desistir seja maior do que a vontade de continuar!',
-      'Não pare até se orgulhar de onde você chegou!',
-      'Transforme cada obstáculo em uma oportunidade de crescimento!',
-      'O que você alcançará amanhã, começa com o que você faz hoje!',
-      'Não adie seus sonhos, comece agora!',
-      'A jornada pode ser difícil, mas a chegada valerá a pena!',
-      'Pare de se preocupar com o que pode dar errado e comece a se concentrar no que pode dar certo!',
-      'Você é mais forte do que pensa, mais corajoso do que acredita e mais talentoso do que imagina!',
-      'O sucesso não é para os rápidos, mas para os persistentes!',
+      "Take the opportunity to hydrate yourself if you're thirsty",
+      "Remember to increase the intensity or load of your exercise if it's too easy",
+      'Breathe properly during sets, it will alleviate the pressure on your body during exercise execution',
+      'Maintain a healthy diet and follow a balanced diet to complement your workout',
+      "Remember that it's important for your rest to be compatible with the effort, so take days to rest",
+      'Be careful with your posture during exercise execution',
+      "Let's go, you're almost there!",
+      'You are doing great, keep it up!',
+      "I'm liking what I see!",
+      'Believe in yourself, you are stronger than you think!',
+      'Every drop of sweat is a step closer to your goal!',
+      'Success comes to those who strive and persist!',
+      "Don't give up, what seems impossible today will be just another achievement tomorrow!",
+      'Be consistent and the results will come!',
+      'You are capable of overcoming any challenge that comes your way!',
+      'The path to success is paved with dedication and determination!',
+      'Never underestimate the power of your mind to turn your dreams into reality!',
+      'The impossible only exists until someone decides to make it possible!',
+      'Remember that progress is important, no matter how slow you go!',
+      'Every day is a new opportunity to improve!',
+      "Don't let the fear of failure stop you from trying!",
+      'The journey to success begins with a single step!',
+      'Success is not a destination, it is a journey!',
+      'Small victories are as important as big ones!',
+      "Don't compare your progress with others, compare it with your own yesterday!",
+      'Failure is just an opportunity to start again with more wisdom!',
+      'You are braver than you think, stronger than you imagine, and more capable than you believe!',
+      "If you want something you've never had, you must do something you've never done!",
+      'The pain you feel today will be the strength you feel tomorrow!',
+      'There is no elevator to success, you have to take it step by step!',
+      "Don't put off until tomorrow what you can start today!",
+      'Success is the sum of small efforts repeated day in and day out!',
+      'You cannot change the wind, but you can adjust the sails of the boat!',
+      'The secret of success is the constancy of purpose!',
+      'Believe in yourself and everything will be possible!',
+      "Don't wait for opportunities, create them!",
+      'Discipline is the bridge between goals and accomplishments!',
+      'There is no victory without struggle!',
+      'The biggest obstacle to success is the fear of failure!',
+      "It doesn't matter how slowly you go, as long as you don't stop!",
+      'What you do today can improve all your tomorrows!',
+      'Time is precious, don’t waste it, invest in yourself!',
+      'Success is not the result of a single effort, it is the result of a constant commitment!',
+      "Don't let the desire to quit be greater than the desire to continue!",
+      "Don't stop until you're proud of how far you've come!",
+      'Turn every obstacle into an opportunity for growth!',
+      'What you will achieve tomorrow starts with what you do today!',
+      "Don't postpone your dreams, start now!",
+      'The journey may be tough, but the arrival will be worth it!',
+      'Stop worrying about what could go wrong and start focusing on what could go right!',
+      'You are stronger than you think, braver than you believe, and more talented than you imagine!',
+      'Success is not for the swift, but for the persistent!',
     ];
 
-    const seriesToSay = series === 1 ? 'uma' : series === 2 ? 'duas' : series;
-    const repsToSay = reps === 1 ? 'uma' : reps === 2 ? 'duas' : reps;
+    const seriesToSay = series === 1 ? 'one' : series === 2 ? 'two' : series;
+    const repsToSay = reps === 1 ? 'one' : reps === 2 ? 'two' : reps;
 
     let intervalToSay;
 
     if (currentSerie === 1) {
-      intervalToSay = `<speak><amazon:emotion name="excited" intensity="high">Fim do seu intervalo. Vamos para a primeira série de ${name}. Você fará ${seriesToSay} ${
-        series === 1 ? 'série' : 'séries'
-      } di ${repsToSay} ${
-        reps === 1 ? 'repetição' : 'repetições'
+      intervalToSay = `<speak><amazon:emotion name="excited" intensity="high">End of your interval. Let's move on to the first set of ${name}. You will do ${seriesToSay} ${
+        series === 1 ? 'set' : 'sets'
+      } of ${repsToSay} ${
+        reps === 1 ? 'repetition' : 'repetitions'
       }.<break time="0.2s" /> ${
         howTo ? howTo : ''
-      }. Pode começar a sua primeira série de ${name}.</amazon:emotion></speak>`;
+      }. You can start your first set of ${name}.</amazon:emotion></speak>`;
     } else {
-      intervalToSay = `<speak><amazon:emotion name="excited" intensity="high">Fim do seu intervalo, continue para a série ${currentSerie} de ${name}, fazendo mais ${repsToSay} ${
-        reps === 1 ? 'repetição' : 'repetições'
+      intervalToSay = `<speak><amazon:emotion name="excited" intensity="high">End of your interval, proceed to set ${currentSerie} of ${name}, doing another ${repsToSay} ${
+        reps === 1 ? 'repetition' : 'repetitions'
       }.</amazon:emotion></speak>`;
     }
 
@@ -715,13 +717,13 @@ const IntervalIntentHandler = {
         spokenInfo: {
           content: [
             {
-              locale: 'pt-BR',
-              text: 'Intervalo do Meu Treino',
+              locale: 'en-US',
+              text: 'My Workout Interval',
               ssml: !isLastExercise
                 ? intervalToSay
-                : `<speak><amazon:emotion name="excited" intensity="high">Fim do seu intervalo, faça as últimas ${repsToSay} ${
-                    reps === 1 ? 'repetição' : 'repetições'
-                  } de ${name} e seu treino estará terminado! Se você gostou desse treino, não esqueça de nos avaliar com 5 estrelas. Obrigada!</amazon:emotion></speak>`,
+                : `<speak><amazon:emotion name="excited" intensity="high">End of your interval, do the last ${repsToSay} ${
+                    reps === 1 ? 'repetition' : 'repetitions'
+                  } of ${name} and your workout will be complete! If you enjoyed this workout, don't forget to rate us with 5 stars. Thank you!</amazon:emotion></speak>`,
             },
           ],
         },
@@ -742,7 +744,7 @@ const IntervalIntentHandler = {
 
       return handlerInput.responseBuilder
         .speak(
-          '<amazon:emotion name="disappointed" intensity="high">Desculpe, parece que você não concedeu as permissões necessárias para que eu crie lembretes. Por favor, conceda a permissão no aplicativo Alexa. Depois, é só falar: Alexa, pede pro Meu Treino continuar. Ou se preferir, comece um novo treino.</amazon:emotion>'
+          '<amazon:emotion name="disappointed" intensity="high">Sorry, it seems you haven\'t granted the necessary permissions for me to create reminders. Please grant the permission in the Alexa app. Then, just say: Alexa, ask Meu Treino to continue. Or if you prefer, start a new workout.</amazon:emotion>'
         )
         .getResponse();
     }
@@ -769,7 +771,7 @@ const IntervalIntentHandler = {
         ]
       }! ${
         randomReminder[Math.floor(Math.random() * randomReminder.length)]
-      }. <break time="0.2s" /><break time="0.5s" />A próxima série será a última do seu treino.</amazon:emotion>`;
+      }. <break time="0.2s" /><break time="0.5s" />The next set will be the last of your workout.</amazon:emotion>`;
 
       cleanup();
       prevExercises = null;
@@ -799,13 +801,13 @@ const ContinueTrainingIntentHandler = {
       exercises = prevExercises;
       prevExercises = null;
     } else {
-      const speakOutput = `Não há um treino em espera para retomar. Se você me pediu um intervalo no seu treino atual, por favor, me peça novamente pois entendi errado.`;
+      const speakOutput = `There's no workout on hold to resume. If you asked for a break in your current workout, please ask me again because I misunderstood.`;
 
       return handlerInput.responseBuilder.speak(speakOutput).getResponse();
     }
 
     const { name, currentSerie } = currentExercise;
-    const speakOutput = `Vamos continuar com o treino! <break time="0.2s" /> Continue para a série ${currentSerie} de ${name}`;
+    const speakOutput = `Let's continue with the workout! <break time="0.2s" /> Proceed to set ${currentSerie} of ${name}`;
 
     return handlerInput.responseBuilder.speak(speakOutput).getResponse();
   },
@@ -828,7 +830,7 @@ const CancelAndStopIntentHandler = {
       Alexa.getIntentName(handlerInput.requestEnvelope) === 'EndTrainingIntent'
     ) {
       const speakOutput =
-        '<amazon:emotion name="disappointed" intensity="high">Ops, parece que não há um treino em andamento. Para iniciar um novo treino, diga: Alexa, começa meu treino.</amazon:emotion>';
+        '<amazon:emotion name="disappointed" intensity="high">Oops, it seems there is no workout in progress. To start a new workout, say: Alexa, start my workout.</amazon:emotion>';
 
       cleanLastTimer(handlerInput);
 
@@ -839,7 +841,7 @@ const CancelAndStopIntentHandler = {
     cleanLastTimer(handlerInput);
 
     const speakOutput =
-      '<amazon:emotion name="disappointed" intensity="high">Terminando o seu treino. Se quiser retomá-lo, diga: Alexa, pede pro Meu Treino continuar. </amazon:emotion>';
+      '<amazon:emotion name="disappointed" intensity="high">Finishing your workout. If you want to resume it, say: Alexa, ask My Workout to continue.</amazon:emotion>';
     return handlerInput.responseBuilder
       .speak(speakOutput)
       .withShouldEndSession(true)
@@ -870,12 +872,12 @@ const HelpIntentHandler = {
   },
   handle(handlerInput) {
     const speakOutput =
-      '<amazon:emotion name="excited" intensity="high">Comece me pedindo para começar o seu treino. Em seguida, escolha entre uma das opções válidas. Daí em frente, sempre que terminar uma série do seu exercício, me peça um intervalo dizendo: Alexa, intervalo no Meu Treino. Se quiser começar um novo treino agora, é só me pedir.</amazon:emotion>';
+      '<amazon:emotion name="excited" intensity="high">Start by asking me to start your workout. Then, choose one of the valid options. From there on, whenever you finish a set of your exercise, ask me for a break by saying: Alexa, break in My Workout. If you want to start a new workout now, just ask me.</amazon:emotion>';
 
     return handlerInput.responseBuilder
       .speak(speakOutput)
       .reprompt(
-        'Você ainda tá por aí? Se quiser treinar, me pede para começar o seu treino.'
+        'Are you still there? If you want to work out, ask me to start your workout.'
       )
       .getResponse();
   },
@@ -891,7 +893,7 @@ const ErrorHandler = {
     if (
       error.stack.match(/Error: Unable to find a suitable request handler/gi)
     ) {
-      speakOutput = `<amazon:emotion name="disappointed" intensity="high">Desculpa, pode repetir?</amazon:emotion>`;
+      speakOutput = `<amazon:emotion name="disappointed" intensity="high">Sorry, can you repeat that?</amazon:emotion>`;
 
       return handlerInput.responseBuilder
         .speak(speakOutput)
@@ -901,7 +903,7 @@ const ErrorHandler = {
 
     console.error('@@@ error:', error);
 
-    speakOutput = `<amazon:emotion name="disappointed" intensity="high">Desculpa, não consegui entender o que você disse. Se você tentou iniciar um treino, lembre-se de falar o nome completo, por exemplo: Treino A.</amazon:emotion>`;
+    speakOutput = `<amazon:emotion name="disappointed" intensity="high">Sorry, I couldn't understand what you said. If you were trying to start a workout, remember to say the full name, for example: Workout A.</amazon:emotion>`;
 
     return handlerInput.responseBuilder
       .speak(speakOutput)
