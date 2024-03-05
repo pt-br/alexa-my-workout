@@ -118,7 +118,7 @@ const LaunchRequestHandler = {
 
     if (workoutsFetching === 'ERROR_FETCHING_TRAININGS') {
       const speechOutput =
-        '<amazon:emotion name="disappointed" intensity="high">Hello! There was an error synchronizing your workouts with myworkoutalexa.com. Please try starting your workout again!</amazon:emotion>';
+        '<amazon:emotion name="disappointed" intensity="high">Hello! There was an error synchronizing your workouts with myworkoutskill.com. Please try starting your workout again!</amazon:emotion>';
 
       return handlerInput.responseBuilder
         .speak(speechOutput)
@@ -128,7 +128,7 @@ const LaunchRequestHandler = {
 
     if (workoutsFetching === 'NO_TRAININGS') {
       const speechOutput =
-        '<amazon:emotion name="disappointed" intensity="high">Hello, welcome to My Workout! It seems you haven\'t registered yet or haven\'t created any workouts on myworkoutalexa.com. Please visit myworkoutalexa.com, create your workouts with the help of our artificial intelligence, and summon me again!</amazon:emotion>';
+        '<amazon:emotion name="disappointed" intensity="high">Hello, welcome to My Workout! It seems you haven\'t registered yet or haven\'t created any workouts on myworkoutskill.com. Please visit myworkoutskill.com, create your workouts with the help of our artificial intelligence, and summon me again!</amazon:emotion>';
 
       return handlerInput.responseBuilder
         .speak(speechOutput)
@@ -143,13 +143,13 @@ const LaunchRequestHandler = {
 
     const listClient =
       handlerInput.serviceClientFactory.getListManagementServiceClient();
-    let stateListId = await getListId(handlerInput, 'Meu_Treino_Internal');
+    let stateListId = await getListId(handlerInput, 'My_Workout_Internal');
 
     if (!stateListId) {
       isFirstTraining = true;
 
       await listClient.createList({
-        name: 'Meu_Treino_Internal',
+        name: 'My_Workout_Internal',
         state: listStatuses.ACTIVE,
       });
     }
@@ -213,7 +213,7 @@ const StartTrainingIntentHandler = {
       handlerInput.requestEnvelope.request.intent.slots.trainingName;
     const listClient =
       handlerInput.serviceClientFactory.getListManagementServiceClient();
-    let stateListId = await getListId(handlerInput, 'Meu_Treino_Internal');
+    let stateListId = await getListId(handlerInput, 'My_Workout_Internal');
 
     const workoutNames = workouts.map((workout) => workout.attributes.name); // for the error message
     const invalidTrainingSpeech = `${
@@ -254,7 +254,7 @@ const StartTrainingIntentHandler = {
       (selectedWorkout.attributes.exercises &&
         selectedWorkout.attributes.exercises.length === 0)
     ) {
-      const speechOutput = `<amazon:emotion name="disappointed" intensity="high">It seems you haven't added any exercises to your ${workoutDescription} yet. Please visit myworkoutalexa.com and add exercises to your workout.</amazon:emotion>`;
+      const speechOutput = `<amazon:emotion name="disappointed" intensity="high">It seems you haven't added any exercises to your ${workoutDescription} yet. Please visit myworkoutskill.com and add exercises to your workout.</amazon:emotion>`;
 
       return handlerInput.responseBuilder
         .speak(speechOutput)
@@ -309,11 +309,11 @@ const StartTrainingIntentHandler = {
     }
 
     await listClient.createList({
-      name: 'Meu_Treino_Internal',
+      name: 'My_Workout_Internal',
       state: listStatuses.ACTIVE,
     });
 
-    stateListId = await getListId(handlerInput, 'Meu_Treino_Internal'); // get the updated list id
+    stateListId = await getListId(handlerInput, 'My_Workout_Internal'); // get the updated list id
 
     await listClient.createListItem(stateListId, {
       value: `CURRENT_WORKOUT_ID=${selectedWorkout.id}`,
@@ -397,7 +397,7 @@ const IntervalIntentHandler = {
       handlerInput.serviceClientFactory.getReminderManagementServiceClient();
     const listClient =
       handlerInput.serviceClientFactory.getListManagementServiceClient();
-    let stateListId = await getListId(handlerInput, 'Meu_Treino_Internal');
+    let stateListId = await getListId(handlerInput, 'My_Workout_Internal');
     const list = await listClient.getList(stateListId, listStatuses.ACTIVE);
 
     cleanLastTimer(handlerInput);
@@ -417,7 +417,7 @@ const IntervalIntentHandler = {
        */
       if (!currentWorkoutIdListItem) {
         const speakOutput =
-          '<amazon:emotion name="disappointed" intensity="high">Oops, it seems there is no workout in progress. To start a new workout, say: Alexa, start my workout.</amazon:emotion>';
+          '<amazon:emotion name="disappointed" intensity="high">Oops, it seems there is no workout in progress. To start a new workout, say: Alexa, begin my workout.</amazon:emotion>';
 
         return handlerInput.responseBuilder.speak(speakOutput).getResponse();
       }
@@ -593,11 +593,11 @@ const IntervalIntentHandler = {
     }
 
     await listClient.createList({
-      name: 'Meu_Treino_Internal',
+      name: 'My_Workout_Internal',
       state: listStatuses.ACTIVE,
     });
 
-    stateListId = await getListId(handlerInput, 'Meu_Treino_Internal'); // get the updated list id
+    stateListId = await getListId(handlerInput, 'My_Workout_Internal'); // get the updated list id
 
     if (!isLastExercise) {
       await listClient.createListItem(stateListId, {
@@ -805,7 +805,7 @@ const ContinueTrainingIntentHandler = {
       exercises = prevExercises;
       prevExercises = null;
     } else {
-      const speakOutput = `There's no workout on hold to resume. If you asked for a break in your current workout, please ask me again because I misunderstood.`;
+      const speakOutput = `There's no workout on hold to resume. If you asked for a rest in your current workout, please ask me again because I misunderstood.`;
 
       return handlerInput.responseBuilder.speak(speakOutput).getResponse();
     }
@@ -834,7 +834,7 @@ const CancelAndStopIntentHandler = {
       Alexa.getIntentName(handlerInput.requestEnvelope) === 'EndTrainingIntent'
     ) {
       const speakOutput =
-        '<amazon:emotion name="disappointed" intensity="high">Oops, it seems there is no workout in progress. To start a new workout, say: Alexa, start my workout.</amazon:emotion>';
+        '<amazon:emotion name="disappointed" intensity="high">Oops, it seems there is no workout in progress. To start a new workout, say: Alexa, begin my workout.</amazon:emotion>';
 
       cleanLastTimer(handlerInput);
 
@@ -876,7 +876,7 @@ const HelpIntentHandler = {
   },
   handle(handlerInput) {
     const speakOutput =
-      '<amazon:emotion name="excited" intensity="high">Start by asking me to start your workout. Then, choose one of the valid options. From there on, whenever you finish a set of your exercise, ask me for a break by saying: Alexa, break in My Workout. If you want to start a new workout now, just ask me.</amazon:emotion>';
+      '<amazon:emotion name="excited" intensity="high">Start by asking me to start your workout. Then, choose one of the valid options. From there on, whenever you finish a set of your exercise, ask me for a break by saying: Alexa, rest in My Workout. If you want to start a new workout now, just ask me.</amazon:emotion>';
 
     return handlerInput.responseBuilder
       .speak(speakOutput)
