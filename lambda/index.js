@@ -1,12 +1,9 @@
 const Alexa = require('ask-sdk-core');
+const AWS = require('aws-sdk');
+const ddbAdapter = require('ask-sdk-dynamodb-persistence-adapter');
 const axios = require('axios');
 
 const readToken = require('./tokens.js');
-
-const listStatuses = {
-  ACTIVE: 'active',
-  COMPLETED: 'completed',
-};
 
 let workouts;
 let selectedWorkout;
@@ -38,20 +35,6 @@ const cleanLastTimer = async (handlerInput) => {
   }
 };
 
-const getListId = async (handlerInput, listName) => {
-  const listClient =
-    handlerInput.serviceClientFactory.getListManagementServiceClient();
-  const listOfLists = await listClient.getListsMetadata();
-
-  if (!listOfLists) {
-    return null;
-  }
-
-  const stateListId = listOfLists.lists.find((list) => list.name === listName);
-
-  return stateListId ? stateListId.listId : null;
-};
-
 const LaunchRequestHandler = {
   canHandle(handlerInput) {
     return (
@@ -63,6 +46,8 @@ const LaunchRequestHandler = {
   async handle(handlerInput) {
     // Check permissions
     const { permissions } = handlerInput.requestEnvelope.context.System.user;
+    // DybnamoDB manager
+    const attributesManager = handlerInput.attributesManager;
 
     if (!permissions) {
       const speechOutput = `<amazon:emotion name="disappointed" intensity="high">Sorry, it seems you haven't granted the necessary permissions for me to access and create notes in your to-do list and set reminders. Please grant the permissions and summon me again. If you have any questions, follow the instructions on the Skill page.</amazon:emotion>`;
@@ -141,17 +126,13 @@ const LaunchRequestHandler = {
       ? workouts[0].attributes.authorName.match(/^\w+(?=\s)/)[0]
       : workouts[0].attributes.authorName;
 
-    const listClient =
-      handlerInput.serviceClientFactory.getListManagementServiceClient();
-    let stateListId = await getListId(handlerInput, 'My_Workout_Internal');
+    const attributes =
+      (await attributesManager.getPersistentAttributes()) || {};
 
-    if (!stateListId) {
-      isFirstTraining = true;
+    const { FIRST_TRAINING_CONCLUDED } = attributes;
 
-      await listClient.createList({
-        name: 'My_Workout_Internal',
-        state: listStatuses.ACTIVE,
-      });
+    if (FIRST_TRAINING_CONCLUDED) {
+      isFirstTraining = false;
     }
 
     /**
@@ -211,9 +192,8 @@ const StartTrainingIntentHandler = {
   async handle(handlerInput) {
     const { value } =
       handlerInput.requestEnvelope.request.intent.slots.trainingName;
-    const listClient =
-      handlerInput.serviceClientFactory.getListManagementServiceClient();
-    let stateListId = await getListId(handlerInput, 'My_Workout_Internal');
+    // DybnamoDB manager
+    const attributesManager = handlerInput.attributesManager;
 
     const workoutNames = workouts.map((workout) => workout.attributes.name); // for the error message
     const invalidTrainingSpeech = `${
@@ -300,37 +280,15 @@ const StartTrainingIntentHandler = {
     const { name, series, reps, howTo, currentSerie } = currentExercise;
 
     /**
-     * Create the persistence note items.
-     * Removing on creation is necessary to ensure the list is reseted:
-     * e.g. user asked to start workout before the previous one got to the last exercise.
+     * Create the persistence DynamoDB items.
      */
-    if (stateListId) {
-      await listClient.deleteList(stateListId);
-    }
-
-    await listClient.createList({
-      name: 'My_Workout_Internal',
-      state: listStatuses.ACTIVE,
+    attributesManager.setPersistentAttributes({
+      CURRENT_WORKOUT_ID: `${selectedWorkout.id}`,
+      SKIP_MOTIVATION: `${!selectedWorkout.attributes.motivation}`,
+      CURRENT_EXERCISE_NAME: `${name}`,
+      CURRENT_SERIE: `${currentSerie}`,
     });
-
-    stateListId = await getListId(handlerInput, 'My_Workout_Internal'); // get the updated list id
-
-    await listClient.createListItem(stateListId, {
-      value: `CURRENT_WORKOUT_ID=${selectedWorkout.id}`,
-      status: listStatuses.ACTIVE,
-    });
-    await listClient.createListItem(stateListId, {
-      value: `SKIP_MOTIVATION=${!selectedWorkout.attributes.motivation}`,
-      status: listStatuses.ACTIVE,
-    });
-    await listClient.createListItem(stateListId, {
-      value: `CURRENT_EXERCISE_NAME=${name}`,
-      status: listStatuses.ACTIVE,
-    });
-    await listClient.createListItem(stateListId, {
-      value: `CURRENT_SERIE=${currentSerie}`,
-      status: listStatuses.ACTIVE,
-    });
+    await attributesManager.savePersistentAttributes();
 
     const randomMotivation = [
       "Let's start",
@@ -395,27 +353,32 @@ const IntervalIntentHandler = {
   async handle(handlerInput) {
     const reminderApiClient =
       handlerInput.serviceClientFactory.getReminderManagementServiceClient();
-    const listClient =
-      handlerInput.serviceClientFactory.getListManagementServiceClient();
-    let stateListId = await getListId(handlerInput, 'My_Workout_Internal');
-    const list = await listClient.getList(stateListId, listStatuses.ACTIVE);
+
+    // DybnamoDB manager
+    const attributesManager = handlerInput.attributesManager;
 
     cleanLastTimer(handlerInput);
+
+    const attributes =
+      (await attributesManager.getPersistentAttributes()) || {};
 
     /**
      * Sometimes alexa will wipe the variables stored in memory.
      * When this happens, we need to refetch the workout from BE and also repopulate the mem variables correctly.
      */
     if (exercises.length === 0) {
-      const currentWorkoutIdListItem = list.items.find((note) =>
-        note.value.match(/CURRENT_WORKOUT_ID/gi)
-      );
+      const {
+        CURRENT_WORKOUT_ID,
+        SKIP_MOTIVATION,
+        CURRENT_EXERCISE_NAME,
+        CURRENT_SERIE,
+      } = attributes;
 
       /**
        * In case user is asking for an interval but indeed there's no
-       * training in progress (aka current workout id is not present in the lists)
+       * training in progress (aka current workout id is not present in the DB)
        */
-      if (!currentWorkoutIdListItem) {
+      if (!CURRENT_WORKOUT_ID) {
         const speakOutput =
           '<amazon:emotion name="disappointed" intensity="high">Oops, it seems there is no workout in progress. To start a new workout, say: Alexa, begin my workout.</amazon:emotion>';
 
@@ -427,22 +390,12 @@ const IntervalIntentHandler = {
       );
 
       /**
-       * A workout id has been found inside the internal note list
+       * A workout id has been found inside DynamoDB
        */
-      const shouldSkipMotivationListItem = list.items.find((note) =>
-        note.value.match(/SKIP_MOTIVATION/gi)
-      );
 
-      console.log(
-        '@@@ shouldSkipMotivationListItem',
-        shouldSkipMotivationListItem
-      );
+      console.log('@@@ SKIP_MOTIVATION', SKIP_MOTIVATION);
 
-      shouldSkipMotivation = JSON.parse(
-        shouldSkipMotivationListItem.value
-          .replace('SKIP_MOTIVATION=', '')
-          .toLowerCase()
-      );
+      shouldSkipMotivation = SKIP_MOTIVATION;
 
       const emailAddress = await handlerInput.serviceClientFactory
         .getUpsServiceClient()
@@ -466,14 +419,9 @@ const IntervalIntentHandler = {
           .getResponse();
       }
 
-      const currentWorkoutIdFromList = currentWorkoutIdListItem.value.replace(
-        'CURRENT_WORKOUT_ID=',
-        ''
-      );
-
       const workoutFetching = await axios
         .get(
-          `https://api.meutreino.fit/api/workouts?filters[authorEmail][$eq]=${emailAddress}&filters[id][$eq]=${currentWorkoutIdFromList}`,
+          `https://api.meutreino.fit/api/workouts?filters[authorEmail][$eq]=${emailAddress}&filters[id][$eq]=${CURRENT_WORKOUT_ID}`,
           {
             headers: {
               Authorization: `Bearer ${readToken}`,
@@ -503,23 +451,9 @@ const IntervalIntentHandler = {
         ? selectedWorkout.attributes.authorName.match(/^\w+(?=\s)/)[0]
         : selectedWorkout.attributes.authorName;
 
-      const currentExerciseListItem = list.items.find((note) =>
-        note.value.match(/CURRENT_EXERCISE_NAME/gi)
-      );
+      const currentExerciseName = CURRENT_EXERCISE_NAME;
 
-      const currentExerciseName = currentExerciseListItem.value.replace(
-        'CURRENT_EXERCISE_NAME=',
-        ''
-      );
-
-      const currentSerieListItem = list.items.find((note) =>
-        note.value.match(/CURRENT_SERIE/gi)
-      );
-
-      const currentSerieListValue = currentSerieListItem.value.replace(
-        'CURRENT_SERIE=',
-        ''
-      );
+      const currentSerieListValue = CURRENT_SERIE;
 
       exercises = selectedWorkout.attributes.exercises.map((exercise) => {
         return {
@@ -584,38 +518,22 @@ const IntervalIntentHandler = {
       totalExercises === currentExerciseCounter;
 
     /**
-     * Update the persistence note items - if it's not last exercise.
-     * If it is, we only need to cleanup all the items and leave just the list created.
+     * Update the persistence DB items - if it's not last exercise.
+     * If it is, we only need to cleanup all the items and leave just the DB record created with empty values.
      */
-
-    if (stateListId) {
-      await listClient.deleteList(stateListId);
-    }
-
-    await listClient.createList({
-      name: 'My_Workout_Internal',
-      state: listStatuses.ACTIVE,
-    });
-
-    stateListId = await getListId(handlerInput, 'My_Workout_Internal'); // get the updated list id
-
     if (!isLastExercise) {
-      await listClient.createListItem(stateListId, {
-        value: `CURRENT_WORKOUT_ID=${selectedWorkout.id}`,
-        status: listStatuses.ACTIVE,
+      attributesManager.setPersistentAttributes({
+        CURRENT_WORKOUT_ID: `${selectedWorkout.id}`,
+        SKIP_MOTIVATION: `${!selectedWorkout.attributes.motivation}`,
+        CURRENT_EXERCISE_NAME: `${name}`,
+        CURRENT_SERIE: `${currentSerie}`,
       });
-      await listClient.createListItem(stateListId, {
-        value: `SKIP_MOTIVATION=${!selectedWorkout.attributes.motivation}`,
-        status: listStatuses.ACTIVE,
+      await attributesManager.savePersistentAttributes();
+    } else {
+      attributesManager.setPersistentAttributes({
+        FIRST_TRAINING_CONCLUDED: 'true',
       });
-      await listClient.createListItem(stateListId, {
-        value: `CURRENT_EXERCISE_NAME=${name}`,
-        status: listStatuses.ACTIVE,
-      });
-      await listClient.createListItem(stateListId, {
-        value: `CURRENT_SERIE=${currentSerie}`,
-        status: listStatuses.ACTIVE,
-      });
+      await attributesManager.savePersistentAttributes();
     }
 
     const randomReminderInitial = [
@@ -927,5 +845,15 @@ exports.handler = Alexa.SkillBuilders.custom()
     SessionEndedRequestHandler
   )
   .addErrorHandlers(ErrorHandler)
+  .withPersistenceAdapter(
+    new ddbAdapter.DynamoDbPersistenceAdapter({
+      tableName: process.env.DYNAMODB_PERSISTENCE_TABLE_NAME,
+      createTable: false,
+      dynamoDBClient: new AWS.DynamoDB({
+        apiVersion: 'latest',
+        region: process.env.DYNAMODB_PERSISTENCE_REGION,
+      }),
+    })
+  )
   .withApiClient(new Alexa.DefaultApiClient())
   .lambda();
