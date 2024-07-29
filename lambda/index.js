@@ -282,7 +282,21 @@ const StartTrainingIntentHandler = {
     /**
      * Create the persistence DynamoDB items.
      */
+    const emailAddress = await handlerInput.serviceClientFactory
+      .getUpsServiceClient()
+      .getProfileEmail()
+      .then((email) => {
+        return email;
+      })
+      .catch((error) => {
+        console.error('@@@ Error fetching email:', error);
+
+        return 'NO_EMAIL_PERMISSIONS';
+      });
+
     attributesManager.setPersistentAttributes({
+      EMAIL: `${emailAddress}`,
+      FIRST_TRAINING_CONCLUDED: 'true',
       CURRENT_WORKOUT_ID: `${selectedWorkout.id}`,
       SKIP_MOTIVATION: `${!selectedWorkout.attributes.motivation}`,
       CURRENT_EXERCISE_NAME: `${name}`,
@@ -521,8 +535,22 @@ const IntervalIntentHandler = {
      * Update the persistence DB items - if it's not last exercise.
      * If it is, we only need to cleanup all the items and leave just the DB record created with empty values.
      */
+    const emailAddress = await handlerInput.serviceClientFactory
+      .getUpsServiceClient()
+      .getProfileEmail()
+      .then((email) => {
+        return email;
+      })
+      .catch((error) => {
+        console.error('@@@ Error fetching email:', error);
+
+        return 'NO_EMAIL_PERMISSIONS';
+      });
+
     if (!isLastExercise) {
       attributesManager.setPersistentAttributes({
+        EMAIL: `${emailAddress}`,
+        FIRST_TRAINING_CONCLUDED: 'true',
         CURRENT_WORKOUT_ID: `${selectedWorkout.id}`,
         SKIP_MOTIVATION: `${!selectedWorkout.attributes.motivation}`,
         CURRENT_EXERCISE_NAME: `${name}`,
@@ -531,6 +559,7 @@ const IntervalIntentHandler = {
       await attributesManager.savePersistentAttributes();
     } else {
       attributesManager.setPersistentAttributes({
+        EMAIL: `${emailAddress}`,
         FIRST_TRAINING_CONCLUDED: 'true',
       });
       await attributesManager.savePersistentAttributes();
